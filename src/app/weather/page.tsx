@@ -15,7 +15,7 @@ import Link from 'next/link';
 async function getWeatherData() {
   // 실제 API 호출을 시뮬레이션 (실제로는 환경 변수에 API 키를 저장해야 함)
   // 여기서는 데모용으로 정적 데이터를 반환합니다
-//   await new Promise((resolve) => setTimeout(resolve, 1000)); // API 호출 지연 시뮬레이션
+  await new Promise((resolve) => setTimeout(resolve, 1000)); // API 호출 지연 시뮬레이션
   
   return {
     location: '서울',

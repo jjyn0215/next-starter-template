@@ -22,7 +22,7 @@ export default function ClientWeather() {
       try {
         setLoading(true);
         // 1초 지연 (로딩 상태를 보여주기 위함)
-        // await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         const response = await fetch('/api/weather');
         

@@ -4,7 +4,7 @@ import ClientWeather from './client-weather';
 
 // 서버 컴포넌트에서 데이터 가져오기 (SSR)
 async function getWeatherData() {
-//   await new Promise((resolve) => setTimeout(resolve, 1000)); // 지연 시뮬레이션
+  await new Promise((resolve) => setTimeout(resolve, 1000)); // 지연 시뮬레이션
   
   return {
     location: '서울',

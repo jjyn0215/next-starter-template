@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   // 실제 API 호출 대신 가짜 데이터 (실제로는 외부 API를 호출할 수 있음)
-//   await new Promise((resolve) => setTimeout(resolve, 1000)); // API 지연 시뮬레이션
+  await new Promise((resolve) => setTimeout(resolve, 1000)); // API 지연 시뮬레이션
   
   const weatherData = {
     location: '서울',
