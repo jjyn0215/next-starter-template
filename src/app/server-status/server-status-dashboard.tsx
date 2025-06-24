@@ -8,9 +8,17 @@ interface Server {
   uptime: string;
   responseTime: number;
   lastChecked: string;
-  cpu: number;
-  memory: number;
-  disk: number;
+  // 새로운 필드들
+  sslInfo: {
+    isValid: boolean;
+    expiresIn: string;
+  };
+  availability: {
+    last24h: string;
+    last7d: string;
+  };
+  lastDowntime: string;
+  responseHistory: number[];
 }
 
 interface ServerStatusResponse {
@@ -75,24 +83,47 @@ function getSystemStatusColor(status: 'healthy' | 'warning' | 'critical'): strin
 }
 
 // 사용량 바 컴포넌트
-function UsageBar({ percentage, type }: { percentage: number; type: 'cpu' | 'memory' | 'disk' }) {
+function UsageBar({ percentage, type }: { percentage: number; type: string }) {
   // 색상 설정
   let colorClass = 'bg-blue-500';
   
-  if (type === 'cpu') {
+  if (type === 'response') {
+    colorClass = percentage > 500 ? 'bg-red-500' : percentage > 200 ? 'bg-yellow-500' : 'bg-blue-500';
+  } else {
     colorClass = percentage > 80 ? 'bg-red-500' : percentage > 60 ? 'bg-yellow-500' : 'bg-blue-500';
-  } else if (type === 'memory') {
-    colorClass = percentage > 85 ? 'bg-red-500' : percentage > 70 ? 'bg-yellow-500' : 'bg-blue-500';
-  } else if (type === 'disk') {
-    colorClass = percentage > 90 ? 'bg-red-500' : percentage > 75 ? 'bg-yellow-500' : 'bg-blue-500';
   }
 
   return (
     <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
       <div 
         className={`h-full ${colorClass} rounded-full transition-all duration-500 ease-in-out`} 
-        style={{ width: `${percentage}%` }}
+        style={{ width: `${Math.min(percentage, 100)}%` }}
       ></div>
+    </div>
+  );
+}
+
+// 응답 시간 그래프 컴포넌트 
+function ResponseTimeChart({ data }: { data: number[] }) {
+  const maxValue = Math.max(...data, 100); // 최소 높이를 위해 100 추가
+  
+  return (
+    <div className="flex items-end h-16 gap-1 mt-2">
+      {data.map((value, index) => {
+        // 값에 따른 색상 결정
+        const colorClass = value > 500 ? 'bg-red-500' : value > 200 ? 'bg-yellow-500' : 'bg-blue-500';
+        // 높이 계산 (최대 높이의 백분율)
+        const heightPercentage = value === 0 ? 0 : Math.max(15, (value / maxValue) * 100);
+        
+        return (
+          <div 
+            key={index} 
+            className={`flex-1 ${colorClass} rounded-t transition-all duration-300`}
+            style={{ height: `${heightPercentage}%` }}
+            title={`${value}ms`}
+          ></div>
+        );
+      })}
     </div>
   );
 }
@@ -191,28 +222,63 @@ export default async function ServerStatusDashboard() {
                 
                 {server.status !== 'offline' && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-slate-500 dark:text-slate-400">CPU</span>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{server.cpu}%</span>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-slate-500 dark:text-slate-400">응답 시간 변화</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {server.responseTime}ms
+                          </span>
+                        </div>
+                        <ResponseTimeChart data={server.responseHistory} />
                       </div>
-                      <UsageBar percentage={server.cpu} type="cpu" />
                     </div>
                     
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-slate-500 dark:text-slate-400">메모리</span>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{server.memory}%</span>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-500 dark:text-slate-400">가용성 (24시간)</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {server.availability.last24h}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="text-sm text-slate-500 dark:text-slate-400">가용성 (7일)</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {server.availability.last7d}
+                          </span>
+                        </div>
                       </div>
-                      <UsageBar percentage={server.memory} type="memory" />
+                      
+                      <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-500 dark:text-slate-400">마지막 다운타임</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {server.lastDowntime}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                     
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-slate-500 dark:text-slate-400">디스크</span>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{server.disk}%</span>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-500 dark:text-slate-400">SSL 인증서</span>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            server.sslInfo.isValid ? 
+                            'bg-green-100 text-green-800 dark:bg-green-800/20 dark:text-green-400' : 
+                            'bg-red-100 text-red-800 dark:bg-red-800/20 dark:text-red-400'
+                          }`}>
+                            {server.sslInfo.isValid ? '유효함' : '만료됨'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="text-sm text-slate-500 dark:text-slate-400">만료 기간</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {server.sslInfo.expiresIn}
+                          </span>
+                        </div>
                       </div>
-                      <UsageBar percentage={server.disk} type="disk" />
                     </div>
                   </div>
                 )}
@@ -220,6 +286,7 @@ export default async function ServerStatusDashboard() {
                 {server.status === 'offline' && (
                   <div className="mt-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 rounded-md">
                     <p className="text-sm text-red-600 dark:text-red-400">이 서버는 현재 오프라인 상태입니다. 관리자에게 문의하세요.</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">마지막 다운타임: {server.lastDowntime}</p>
                   </div>
                 )}
               </div>

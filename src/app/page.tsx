@@ -4,8 +4,8 @@ import { Suspense } from "react";
 import ServerStatusDashboard from "./server-status/server-status-dashboard";
 
 export const metadata = {
-  title: "서버 상태 대시보드",
-  description: "실시간 서버 상태 모니터링 대시보드",
+  title: "서버 상태",
+  description: "서버 상태",
 };
 
 export default function HomePage() {
@@ -13,7 +13,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">
-          서버 상태 모니터링 대시보드
+          서버 상태
         </h1>
 
         <Suspense
