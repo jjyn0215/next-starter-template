@@ -83,25 +83,25 @@ function getSystemStatusColor(status: 'healthy' | 'warning' | 'critical'): strin
 }
 
 // 사용량 바 컴포넌트
-function UsageBar({ percentage, type }: { percentage: number; type: string }) {
-  // 색상 설정
-  let colorClass = 'bg-blue-500';
+// function UsageBar({ percentage, type }: { percentage: number; type: string }) {
+//   // 색상 설정
+//   let colorClass = 'bg-blue-500';
   
-  if (type === 'response') {
-    colorClass = percentage > 500 ? 'bg-red-500' : percentage > 200 ? 'bg-yellow-500' : 'bg-blue-500';
-  } else {
-    colorClass = percentage > 80 ? 'bg-red-500' : percentage > 60 ? 'bg-yellow-500' : 'bg-blue-500';
-  }
+//   if (type === 'response') {
+//     colorClass = percentage > 500 ? 'bg-red-500' : percentage > 200 ? 'bg-yellow-500' : 'bg-blue-500';
+//   } else {
+//     colorClass = percentage > 80 ? 'bg-red-500' : percentage > 60 ? 'bg-yellow-500' : 'bg-blue-500';
+//   }
 
-  return (
-    <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-      <div 
-        className={`h-full ${colorClass} rounded-full transition-all duration-500 ease-in-out`} 
-        style={{ width: `${Math.min(percentage, 100)}%` }}
-      ></div>
-    </div>
-  );
-}
+//   return (
+//     <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+//       <div 
+//         className={`h-full ${colorClass} rounded-full transition-all duration-500 ease-in-out`} 
+//         style={{ width: `${Math.min(percentage, 100)}%` }}
+//       ></div>
+//     </div>
+//   );
+// }
 
 // 응답 시간 그래프 컴포넌트 
 function ResponseTimeChart({ data }: { data: number[] }) {

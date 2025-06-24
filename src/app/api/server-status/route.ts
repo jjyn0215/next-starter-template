@@ -25,7 +25,7 @@ async function checkServerStatus(url: string): Promise<'online' | 'offline' | 'd
       // 서버 에러 (500~599)
       return 'degraded';
     }
-  } catch (error) {
+  } catch {
     // 요청 실패 또는 타임아웃
     return 'offline';
   }
@@ -47,7 +47,7 @@ async function measureResponseTime(url: string): Promise<number | null> {
     const end = performance.now();
     
     return Math.round(end - start);
-  } catch (error) {
+  } catch {
     return null;
   }
 }
